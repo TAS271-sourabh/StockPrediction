@@ -35,7 +35,9 @@ def train_stock_model(stock_symbol):
 
     # Preprocess the data
     stock_data = stock_data[['Open', 'Close', 'High', 'Low']].dropna()  # Ensure no NaN values
-
+    # stock_data['Date'] = pd.to_datetime(stock_data['Date'])
+    # stock_data.set_index('Date',inplace=True)
+    
     # Check if sufficient data is available
     if stock_data.shape[0] == 0:
         return {"error": f"Not enough data for stock symbol: {stock_symbol}"}

@@ -40,6 +40,11 @@ def predict_price(stock_symbol, date_str):
         return {"error": f"Data file for stock {stock_symbol} not found."}
     
     data = pd.read_csv(data_file_path, index_col='Date', parse_dates=True)
+    
+    # Ensure data is loaded correctly
+    if data.empty:
+        return {"error": f"Loaded data for {stock_symbol} is empty."}
+
     date = pd.to_datetime(date_str)
 
     # Use the last 30 days of past data before the given date
@@ -49,6 +54,7 @@ def predict_price(stock_symbol, date_str):
 
     # Scale the data
     scaler = MinMaxScaler(feature_range=(0, 1))
+    # Note: Fit the scaler on the entire data to keep consistent scaling
     scaled_data = scaler.fit_transform(data[['Open', 'Close', 'High', 'Low']])
     past_data_scaled = scaler.transform(past_data[['Open', 'Close', 'High', 'Low']])
     X_input = torch.tensor(past_data_scaled, dtype=torch.float32).view(1, 30, -1).to(device)
@@ -90,4 +96,8 @@ def predict_price(stock_symbol, date_str):
             "execution_time": execution_time
         }
     except KeyError:
-        return {"error": f"No actual prices available for the date: {date_str}."}
+        return {"error": f"No actual prices available for the date: {date_str}. Available dates: {data.index.tolist()}"}
+
+# Example usage:
+# result = predict_price("AAPL", "2022-10-01")
+# print(result)
