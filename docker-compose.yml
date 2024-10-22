@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: my-react-app
+    ports:
+      - "3001:3001"  # Frontend accessible on localhost:3001
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Ensure the path is correct
+    ports:
+      - "3000:9090"  # Prometheus accessible on localhost:3000
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3002:3000"  # Grafana accessible on localhost:3002
+    volumes:
+      - ./Grafana:/var/lib/grafana  # Persistent volume for Grafana data
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Set Grafana admin password
+    networks:
+      - app-network
+    depends_on:
+      - prometheus
+
+networks:
+  app-network:
+    driver: bridge
