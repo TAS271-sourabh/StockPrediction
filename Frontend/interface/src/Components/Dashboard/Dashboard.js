@@ -2,21 +2,21 @@ import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  // Predefined list of 10 Nifty 50 stocks
+  // Updated list of stock symbols corresponding to Yahoo Finance
   const stocksList = [
-    'RELIANCE',
-    'HDFCBANK',
-    'INFY',
-    'TCS',
-    'HINDUNILVR',
-    'ITC',
-    'KOTAKBANK',
-    'LT',
-    'SBIN',
-    'HDFC'
+    'RELIANCE.NS',  // Reliance Industries Limited
+    'HDFCBANK.NS',  // HDFC Bank
+    'INFY.NS',      // Infosys
+    'TCS.NS',       // Tata Consultancy Services
+    'HINDUNILVR.NS',// Hindustan Unilever
+    'ITC.NS',       // ITC Limited
+    'KOTAKBANK.NS', // Kotak Mahindra Bank
+    'LT.NS',        // Larsen & Toubro
+    'SBIN.NS',      // State Bank of India
+    'HDFC.NS'       // HDFC Limited
   ];
 
-  const [stocks, setStocks] = useState(stocksList); // Set initial stocks to the predefined list
+  const [stocks, setStocks] = useState(stocksList); // Set initial stocks to the updated list
   const [selectedStock, setSelectedStock] = useState('');
   const [predictionDate, setPredictionDate] = useState('');
   const [predictionResults, setPredictionResults] = useState(null);
@@ -40,7 +40,10 @@ const Dashboard = () => {
   };
 
   const handleTrain = async () => {
-    if (!selectedStock) return;
+    if (!selectedStock) {
+      alert('Please select a stock to train.');
+      return;
+    }
 
     setIsLoading(true); // Set loading to true while training
     const response = await fetch('http://localhost:5000/train', {
@@ -48,7 +51,7 @@ const Dashboard = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ symbol: selectedStock }),
+      body: JSON.stringify({ symbol: selectedStock }), // Send selected stock symbol
     });
 
     const data = await response.json();
@@ -59,13 +62,16 @@ const Dashboard = () => {
       setIsTrained(true); // Set stock as trained
       logFrontendAction('train_success'); // Log successful training
     } else {
-      setTrainingMessage(data.error);
+      setTrainingMessage(data.error || 'Training failed. Please try again.');
       logFrontendAction('train_failure'); // Log failed training
     }
   };
 
   const handlePredict = async () => {
-    if (!selectedStock || !predictionDate) return;
+    if (!selectedStock || !predictionDate) {
+      alert('Please select a stock and a date for prediction.');
+      return;
+    }
 
     const response = await fetch('http://localhost:5000/predict', {
       method: 'POST',
@@ -80,7 +86,7 @@ const Dashboard = () => {
       setPredictionResults(data);
       logFrontendAction('predict_success'); // Log successful prediction
     } else {
-      setPredictionResults({ error: data.error });
+      setPredictionResults({ error: data.error || 'Prediction failed. Please try again.' });
       logFrontendAction('predict_failure'); // Log failed prediction
     }
   };

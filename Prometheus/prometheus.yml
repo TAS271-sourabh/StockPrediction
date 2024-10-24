@@ -3,9 +3,6 @@ global:
   evaluation_interval: 15s  # Evaluate rules every 15 seconds.
 
 scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']  # Target Prometheus itself for monitoring
 
   - job_name: 'backend'
     static_configs:
@@ -13,4 +10,9 @@ scrape_configs:
 
   - job_name: 'frontend'
     static_configs:
-      - targets: ['frontend:3001']  # Your frontend Docker container
+      - targets: ['localhost:3001']  # Your frontend Docker container
+  
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']  # Target Prometheus itself for monitoring
+    

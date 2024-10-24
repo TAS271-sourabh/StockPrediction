@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   frontend:
-    image: my-react-app
+    build: 
+      context: ./Frontend  # Path to the directory containing the Dockerfile for the frontend
+      dockerfile: Dockerfile  # Optional, defaults to Dockerfile if the filename matches
     ports:
       - "3001:3001"  # Frontend accessible on localhost:3001
     networks:
@@ -10,17 +12,17 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
+    network_mode: "host"
     volumes:
       - ./Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Ensure the path is correct
     ports:
-      - "3000:9090"  # Prometheus accessible on localhost:3000
-    networks:
-      - app-network
+      - "9090:9090"  # Prometheus accessible on localhost:3000
+    
 
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3002:3000"  # Grafana accessible on localhost:3002
+      - "3000:3000"  # Grafana accessible on localhost:3002
     volumes:
       - ./Grafana:/var/lib/grafana  # Persistent volume for Grafana data
     environment:
