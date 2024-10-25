@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  
   frontend:
     build: 
       context: ./Frontend  # Path to the directory containing the Dockerfile for the frontend
@@ -10,19 +11,28 @@ services:
     networks:
       - app-network
 
+  backend:
+    build:
+      context: ./ML  # Path to the directory containing the Dockerfile for the backend
+    ports:
+      - "5000:5000"  # Backend accessible on localhost:5000
+    networks:
+      - app-network
+    depends_on:
+      - frontend  # Make sure the backend waits for frontend
+
   prometheus:
     image: prom/prometheus:latest
     network_mode: "host"
     volumes:
       - ./Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Ensure the path is correct
     ports:
-      - "9090:9090"  # Prometheus accessible on localhost:3000
-    
+      - "9090:9090"  # Prometheus accessible on localhost:9090
 
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"  # Grafana accessible on localhost:3002
+      - "3002:3000"  # Grafana accessible on localhost:3002
     volumes:
       - ./Grafana:/var/lib/grafana  # Persistent volume for Grafana data
     environment:
