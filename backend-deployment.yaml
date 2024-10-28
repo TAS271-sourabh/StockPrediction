@@ -15,7 +15,7 @@ spec:
       containers:
       - name: backend
         image: backend:latest  # Built locally
-        imagePullPolicy: Never
+        imagePullPolicy: Never 
         ports:
         - containerPort: 5000
 ---
@@ -24,10 +24,10 @@ kind: Service
 metadata:
   name: backend-service
 spec:
+  type: ClusterIP  # Default service type; can be omitted
   selector:
     app: backend
   ports:
     - protocol: TCP
       port: 5000
       targetPort: 5000
-  type: NodePort  # Exposes it on a NodePort

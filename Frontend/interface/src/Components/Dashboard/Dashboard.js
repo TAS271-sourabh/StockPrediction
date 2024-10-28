@@ -27,7 +27,7 @@ const Dashboard = () => {
   // Function to log frontend actions
   const logFrontendAction = async (actionType) => {
     try {
-      await fetch('http://localhost:3000/logs', {
+      await fetch('http://frontend-service:3000/logs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ const Dashboard = () => {
     }
 
     setIsLoading(true); // Set loading to true while training
-    const response = await fetch('http://localhost:5000/train', {
+    const response = await fetch('http://backend-service:5000/train', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const Dashboard = () => {
       return;
     }
 
-    const response = await fetch('http://localhost:5000/predict', {
+    const response = await fetch('http://backend-service:5000/predict', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

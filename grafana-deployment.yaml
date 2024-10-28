@@ -15,7 +15,8 @@ spec:
       containers:
       - name: grafana
         image: grafana/grafana:latest
-        # imagePullPolicy: Never
+        # Uncomment the next line if you're building the image locally
+        # imagePullPolicy: Never 
         ports:
         - containerPort: 3000
         volumeMounts:
@@ -23,7 +24,7 @@ spec:
           mountPath: /var/lib/grafana
       volumes:
       - name: grafana-storage
-        emptyDir: {}
+        emptyDir: {}  # Consider using a persistent volume claim (PVC) for data retention
 ---
 apiVersion: v1
 kind: Service
@@ -36,4 +37,4 @@ spec:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-  type: NodePort
+  type: ClusterIP  # Change to ClusterIP for internal communication
