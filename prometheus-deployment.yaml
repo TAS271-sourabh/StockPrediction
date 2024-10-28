@@ -17,16 +17,17 @@ spec:
         image: prom/prometheus:latest
         # Uncomment the next line if you're building the image locally
         # imagePullPolicy: Never 
-        volumeMounts:
-        - name: prometheus-config
-          mountPath: /etc/prometheus/prometheus.yml
-          subPath: prometheus.yml
         ports:
         - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus/prometheus.yml  # Mount the prometheus.yml file here
+          subPath: prometheus.yml  # Specify the name of the mounted file
       volumes:
       - name: prometheus-config
         configMap:
-          name: prometheus-config
+          name: prometheus-config  # Reference the ConfigMap created below
+
 ---
 apiVersion: v1
 kind: Service
@@ -40,6 +41,7 @@ spec:
       port: 9090
       targetPort: 9090
   type: ClusterIP  # Change to ClusterIP for internal communication
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -47,15 +49,40 @@ metadata:
   name: prometheus-config
 data:
   prometheus.yml: |
-    # Add your Prometheus config here (from your local prometheus.yml file)
     global:
-      scrape_interval: 15s  # Default scrape interval
-      evaluation_interval: 15s  # Default evaluation interval
+      scrape_interval: 15s  # Set the default scrape interval
+      evaluation_interval: 15s  # Set the evaluation interval
+
     scrape_configs:
-      - job_name: 'kubernetes-apiservers'
+      - job_name: 'backend'
         kubernetes_sd_configs:
           - role: endpoints
         relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: backend-service  # Change to the name of your backend service
           - source_labels: [__meta_kubernetes_namespace]
             action: keep
-            regex: default  # Change this if your services are in a different namespace
+            regex: default  # Change if your services are in a different namespace
+
+      - job_name: 'frontend'
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: frontend-service  # Change to the name of your frontend service
+          - source_labels: [__meta_kubernetes_namespace]
+            action: keep
+            regex: default  # Change if your services are in a different namespace
+
+      - job_name: 'prometheus'
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: prometheus-service  # Change this if your Prometheus service has a different name
+          - source_labels: [__meta_kubernetes_namespace]
+            action: keep
+            regex: default  # Change if your Prometheus service is in a different namespace

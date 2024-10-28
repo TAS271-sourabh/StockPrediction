@@ -3,16 +3,38 @@ global:
   evaluation_interval: 15s  # Evaluate rules every 15 seconds.
 
 scrape_configs:
-
+  # Scrape the backend service
   - job_name: 'backend'
-    static_configs:
-      - targets: ['backend-service:5000']  # Your backend running on localhost:5000
+    kubernetes_sd_configs:
+      - role: endpoints
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name]
+        action: keep
+        regex: backend-service  # Change this to the name of your backend service
+      - source_labels: [__meta_kubernetes_namespace]
+        action: keep
+        regex: default  # Change if your services are in a different namespace
 
+  # Scrape the frontend service
   - job_name: 'frontend'
-    static_configs:
-      - targets: ['frontend-service:3001']  # Your frontend Docker container
-  
+    kubernetes_sd_configs:
+      - role: endpoints
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name]
+        action: keep
+        regex: frontend-service  # Change this to the name of your frontend service
+      - source_labels: [__meta_kubernetes_namespace]
+        action: keep
+        regex: default  # Change if your services are in a different namespace
+
+  # Scrape Prometheus itself
   - job_name: 'prometheus'
-    static_configs:
-      - targets: ['prometheus-service':9090']  # Target Prometheus itself for monitoring
-    
+    kubernetes_sd_configs:
+      - role: endpoints
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name]
+        action: keep
+        regex: prometheus-service  # Change this if your Prometheus service has a different name
+      - source_labels: [__meta_kubernetes_namespace]
+        action: keep
+        regex: default  # Change if your Prometheus service is in a different namespace
